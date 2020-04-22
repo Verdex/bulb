@@ -7,6 +7,12 @@ use std::time::Duration;
 
 use glium::{ Surface
            , Display
+           , Program
+           , vertex::VertexBuffer
+           , IndexBuffer
+           , index::PrimitiveType
+           , texture::RawImage2d
+           , texture::Texture2d
            , glutin::event_loop::EventLoop 
            , glutin::event_loop::ControlFlow
            , glutin::event::Event
@@ -28,26 +34,25 @@ const VERTEX_SHADER : &'static str = r#"
 
 in vec2 position;
 in vec2 texture_coords;
-out vec2 v_tex_coords;
+out vec2 v_texture_coords;
 
-uniform mat4 matrix;
 
 void main() {
-    v_tex_coords = texture_coords;
-    gl_Position = matrix * vec4(position, 0.0, 1.0);
+    v_texture_coords = texture_coords;
+    gl_Position = vec4(position, 0.0, 1.0);
 }
 "#;
 
 const FRAGMENT_SHADDER : &'static str = r#"
 #version 140
 
-in vec2 v_tex_coords;
+in vec2 v_texture_coords;
 out vec4 color;
 
-uniform sampler2D tex;
+uniform sampler2D text;
 
 void main() {
-    color = texture(tex, v_tex_coords);
+    color = texture(text, v_texture_coords);
 }
 "#;
 
@@ -57,6 +62,28 @@ fn main() {
     let context_builder = ContextBuilder::new();
     // TODO message on unwrap
     let display = Display::new(window_builder, context_builder, &event_loop).unwrap();
+
+    // TODO message on unwrap
+    let screen_vertices = VertexBuffer::new(&display, &[
+        Vertex{ position: [1.0, 1.0], texture_coords: [1.0, 1.0] }, 
+        Vertex{ position: [-1.0, 1.0], texture_coords: [0.0, 1.0] },
+        Vertex{ position: [-1.0, -1.0], texture_coords: [0.0, 0.0] },
+        Vertex{ position: [1.0, -1.0], texture_coords: [1.0, 0.0] },
+    ]).unwrap();
+
+    let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[
+        0u16, 2, 3,
+        0, 1, 2
+    ]).unwrap();
+
+    let program = Program::from_source(&display, VERTEX_SHADER, FRAGMENT_SHADDER, None).unwrap();
+
+    // TODO into loop later
+    let image = RawImage2d::from_raw_rgba_reversed(&[0u8, 200, 0, 0,
+                                                     0, 200, 200, 0,
+                                                     0, 0, 200, 0,
+                                                     0, 0, 0, 0 ], (2, 2));
+    let texture = Texture2d::new(&display, image).unwrap(); // TODO 
 
     event_loop.run( move |event, _, control_flow | {
         let next = Instant::now() + Duration::from_nanos(16_666_667); // TODO time?
@@ -104,5 +131,18 @@ fn main() {
             },
             _ => (),
         }
+
+        let uniforms = uniform! {
+            text: &texture,
+        };
+
+        let mut target = display.draw();
+        target.clear_color(0.0, 0.0, 0.0, 1.0);
+        target.draw(&screen_vertices, 
+                    &indices, 
+                    &program, 
+                    &uniforms, 
+                    &Default::default()).unwrap();// TODO unwrap
+        target.finish().unwrap(); // TODO unwrap
     });
 }
