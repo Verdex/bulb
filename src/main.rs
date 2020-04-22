@@ -40,8 +40,24 @@ fn main() {
                         *control_flow = ControlFlow::Exit;
                         return;
                     },
-                    // TODO mouse/keyboard events
-                    // TODO window resize event
+                    /*
+                     Resized(PhysicalSize<u32>),
+                     DroppedFile(PathBuf),
+                     KeyboardInput {
+                        device_id: DeviceId,
+                        input: KeyboardInput,
+                    },
+                    MouseWheel {
+                        device_id: DeviceId,
+                        delta: MouseScrollDelta,
+                        phase: TouchPhase,
+                    },
+                     MouseInput {
+                        device_id: DeviceId,
+                        state: ElementState,
+                        button: MouseButton,
+                    },
+                    */
                     _ => (),
                 }
             },
