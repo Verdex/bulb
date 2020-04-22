@@ -8,6 +8,8 @@ use glium::{ Surface
            , Display
            , glutin::event_loop::EventLoop 
            , glutin::event_loop::ControlFlow
+           , glutin::event::Event
+           , glutin::event::WindowEvent
            , glutin::window::WindowBuilder
            , glutin::ContextBuilder
            };
@@ -24,8 +26,30 @@ fn main() {
         *control_flow = ControlFlow::WaitUntil(next);
 
 
+        // TODO there's different scenarios that destory a loop
+        // should handle basically the same tear down actions in
+        // any given one of them.
         match event {
-
+            Event::WindowEvent { event, .. } => {
+                match event {
+                    WindowEvent::CloseRequested => {
+                        *control_flow = ControlFlow::Exit;
+                        return;
+                    },
+                    WindowEvent::Destroyed=> {
+                        *control_flow = ControlFlow::Exit;
+                        return;
+                    },
+                    // TODO mouse/keyboard events
+                    // TODO window resize event
+                    _ => (),
+                }
+            },
+            Event::LoopDestroyed => {
+                *control_flow = ControlFlow::Exit;
+                return;
+            },
+            _ => (),
         }
     });
 }
