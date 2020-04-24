@@ -36,10 +36,11 @@ in vec2 position;
 in vec2 texture_coords;
 out vec2 v_texture_coords;
 
+uniform mat4 aspect;
 
 void main() {
     v_texture_coords = texture_coords;
-    gl_Position = vec4(position, 0.0, 1.0);
+    gl_Position = aspect * vec4(position, 0.0, 1.0);
 }
 "#;
 
@@ -132,11 +133,25 @@ fn main() {
             _ => (),
         }
 
+        let mut target = display.draw();
+
+        let aspect = {
+            let (width, height) = target.get_dimensions();
+            let aspect_ratio = height as f32 / width as f32;
+        
+            [
+                [aspect_ratio, 0.0, 0.0, 0.0],
+                [0.0,          1.0, 0.0, 0.0],
+                [0.0,          0.0, 1.0, 0.0],
+                [0.0,          0.0, 0.0, 1.0],
+            ]
+        };
+
         let uniforms = uniform! {
+            aspect: aspect,
             text: &texture,
         };
 
-        let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.draw(&screen_vertices, 
                     &indices, 
