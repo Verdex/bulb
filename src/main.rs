@@ -61,10 +61,8 @@ fn main() {
     let event_loop = EventLoop::new();
     let window_builder = WindowBuilder::new();
     let context_builder = ContextBuilder::new();
-    // TODO message on unwrap
     let display = Display::new(window_builder, context_builder, &event_loop).unwrap();
 
-    // TODO message on unwrap
     let screen_vertices = VertexBuffer::new(&display, &[
         Vertex{ position: [1.0, 1.0], texture_coords: [1.0, 1.0] }, 
         Vertex{ position: [-1.0, 1.0], texture_coords: [0.0, 1.0] },
@@ -125,11 +123,11 @@ fn main() {
             _ => (),
         }
 
-        let image = RawImage2d::from_raw_rgba_reversed(&[0u8, t, 0, 0,
-                                                        0, 255 - t, t, 0,
-                                                        0, 0, t, 0,
+        let image = RawImage2d::from_raw_rgba_reversed(&[0u8, 200, 0, 0,
+                                                        0, 200, 200, 0,
+                                                        0, 0, 200, 0,
                                                         0, 0, 0, 0 ], (2, 2));
-        let texture = Texture2d::new(&display, image).unwrap(); // TODO 
+        let texture = Texture2d::new(&display, image).unwrap(); 
 
         let mut target = display.draw();
 
@@ -139,7 +137,7 @@ fn main() {
         
             [
                 [aspect_ratio, 0.0, 0.0, 0.0],
-                [0.0,          1.0, 0.0, 0.0],
+                [0.0,          aspect_ratio, 0.0, 0.0],
                 [0.0,          0.0, 1.0, 0.0],
                 [0.0,          0.0, 0.0, 1.0],
             ]
@@ -155,7 +153,7 @@ fn main() {
                     &indices, 
                     &program, 
                     &uniforms, 
-                    &Default::default()).unwrap();// TODO unwrap
-        target.finish().unwrap(); // TODO unwrap
+                    &Default::default()).unwrap();
+        target.finish().unwrap(); 
     });
 }
