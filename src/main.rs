@@ -79,17 +79,9 @@ fn main() {
 
     let program = Program::from_source(&display, VERTEX_SHADER, FRAGMENT_SHADDER, None).unwrap();
 
-    // TODO into loop later
-    let image = RawImage2d::from_raw_rgba_reversed(&[0u8, 200, 0, 0,
-                                                     0, 200, 200, 0,
-                                                     0, 0, 200, 0,
-                                                     0, 0, 0, 0 ], (2, 2));
-    let texture = Texture2d::new(&display, image).unwrap(); // TODO 
-
     event_loop.run( move |event, _, control_flow | {
         let next = Instant::now() + Duration::from_nanos(16_666_667); // TODO time?
         *control_flow = ControlFlow::WaitUntil(next);
-
 
         // TODO there's different scenarios that destory a loop
         // should handle basically the same tear down actions in
@@ -132,6 +124,12 @@ fn main() {
             },
             _ => (),
         }
+
+        let image = RawImage2d::from_raw_rgba_reversed(&[0u8, t, 0, 0,
+                                                        0, 255 - t, t, 0,
+                                                        0, 0, t, 0,
+                                                        0, 0, 0, 0 ], (2, 2));
+        let texture = Texture2d::new(&display, image).unwrap(); // TODO 
 
         let mut target = display.draw();
 
