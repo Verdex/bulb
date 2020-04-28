@@ -2,6 +2,8 @@
 #[macro_use]
 extern crate glium;
 
+mod screen;
+
 use std::time::Instant;
 use std::time::Duration;
 
@@ -36,11 +38,11 @@ in vec2 position;
 in vec2 texture_coords;
 out vec2 v_texture_coords;
 
-uniform mat4 aspect;
+uniform mat4 model;
 
 void main() {
     v_texture_coords = texture_coords;
-    gl_Position = aspect * vec4(position, 0.0, 1.0);
+    gl_Position = model * vec4(position, 0.0, 1.0);
 }
 "#;
 
@@ -69,6 +71,9 @@ fn main() {
         Vertex{ position: [-1.0, -1.0], texture_coords: [0.0, 0.0] },
         Vertex{ position: [1.0, -1.0], texture_coords: [1.0, 0.0] },
     ]).unwrap();
+
+    let s_height = 200f32;
+    let s_width = 400f32;
 
     let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[
         0u16, 2, 3,
@@ -131,20 +136,18 @@ fn main() {
 
         let mut target = display.draw();
 
-        let aspect = {
-            let (width, height) = target.get_dimensions();
-            let aspect_ratio = height as f32 / width as f32;
-        
+        let (width, height) = target.get_dimensions();
+        let model = {
             [
-                [aspect_ratio, 0.0, 0.0, 0.0],
-                [0.0,          aspect_ratio, 0.0, 0.0],
-                [0.0,          0.0, 1.0, 0.0],
-                [0.0,          0.0, 0.0, 1.0],
+                [s_width / width as f32, 0.0, 0.0, 0.0],
+                [0.0,    s_height / height as f32, 0.0, 0.0],
+                [0.0,    0.0, 1.0, 0.0],
+                [0.0,    0.0, 0.0, 1.0],
             ]
         };
 
         let uniforms = uniform! {
-            aspect: aspect,
+            model: model,
             text: &texture,
         };
 
