@@ -3,6 +3,7 @@
 extern crate glium;
 
 mod screen;
+use screen::Screen;
 
 use std::time::Instant;
 use std::time::Duration;
@@ -72,15 +73,14 @@ fn main() {
         Vertex{ position: [1.0, -1.0], texture_coords: [1.0, 0.0] },
     ]).unwrap();
 
-    let s_height = 200f32;
-    let s_width = 400f32;
-
     let indices = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[
         0u16, 2, 3,
         0, 1, 2
     ]).unwrap();
 
     let program = Program::from_source(&display, VERTEX_SHADER, FRAGMENT_SHADDER, None).unwrap();
+
+    let s = Screen::new(400f32, 200f32);
 
     event_loop.run( move |event, _, control_flow | {
         let next = Instant::now() + Duration::from_nanos(16_666_667); // TODO time?
@@ -128,15 +128,12 @@ fn main() {
             _ => (),
         }
 
-        let image = RawImage2d::from_raw_rgba_reversed(&[0u8, 200, 0, 0,
-                                                        0, 200, 200, 0,
-                                                        0, 0, 200, 0,
-                                                        0, 0, 0, 0 ], (2, 2));
-        let texture = Texture2d::new(&display, image).unwrap(); 
 
         let mut target = display.draw();
 
         let (width, height) = target.get_dimensions();
+        let s_width = s.width;
+        let s_height = s.height;
         let model = {
             [
                 [s_width / width as f32, 0.0, 0.0, 0.0],
@@ -145,6 +142,8 @@ fn main() {
                 [0.0,    0.0, 0.0, 1.0],
             ]
         };
+
+        let texture = s.texture(&display);
 
         let uniforms = uniform! {
             model: model,
